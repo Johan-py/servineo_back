@@ -1,11 +1,10 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import connectDB from '@config/database';
+// Dev y Prod funcionan
+import connectDB from './config/database.js';
+import routesDevcode from './modules/DevCode/routes/index.js';
 
-// IMPORTS DE ROUTES
-// Importa la ruta principal de DevCode con la extensión .js
-import routesDevcode from './modules/DevCode/routes/index';
 
 // Cargar variables de entorno
 dotenv.config();
