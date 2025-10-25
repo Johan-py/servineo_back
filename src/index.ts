@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/database';
 
-import routesDevcode from "./modules/DevCode/routes"
+import routesDevcode from "./modules/DevCode/routes/index";
 // Cargar variables de entorno
 dotenv.config();
 

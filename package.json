@@ -1,7 +1,7 @@
 {
   "name": "servineo_back",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend del proyecto Servineo (Node + Express + TypeScript)",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
@@ -12,13 +12,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Johan-py/servineo_back"
+    "url": "https://github.com/Johan-py/servineo_back.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Johan",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Johan-py/servineo_backissues"
+    "url": "https://github.com/Johan-py/servineo_back/issues"
   },
   "homepage": "https://github.com/Johan-py/servineo_back#readme",
   "dependencies": {
@@ -28,7 +28,6 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mogoose": "^0.0.1-security",
     "mongoose": "^8.19.0"
   },
   "devDependencies": {
