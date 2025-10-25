@@ -1,9 +1,12 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import connectDB from './config/database';
+import connectDB from '@config/database';
 
-import routesDevcode from "./modules/DevCode/routes/index";
+// IMPORTS DE ROUTES
+// Importa la ruta principal de DevCode con la extensión .js
+import routesDevcode from './modules/DevCode/routes/index';
+
 // Cargar variables de entorno
 dotenv.config();
 
@@ -18,11 +21,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
-// Ruta raíz
+// ============================================
+// RUTA RAÍZ
+// ============================================
 app.get('/', (req: Request, res: Response) => {
   res.json({
-    message: ' API Backend',
+    message: 'API Backend',
     status: 'OK',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
@@ -30,7 +34,9 @@ app.get('/', (req: Request, res: Response) => {
   });
 });
 
-// Health check
+// ============================================
+// HEALTH CHECK
+// ============================================
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({
     status: 'healthy',
@@ -40,34 +46,35 @@ app.get('/api/health', (req: Request, res: Response) => {
 });
 
 // ============================================
-// MONTAR MÓDULOS/GRUPOS AQUÍ
+// MONTAR MÓDULOS
 // ============================================
-// Montar tus módulos aquí:
 
-// app.use('/api/nombre_grupo_ejemplo', nombreGrupoEjemploRouter);
+// Rutas DevCode
+app.use('/api/devcode', routesDevcode);
 
-// ROUTES DEVCODE
-app.use('/api/devcode', routesDevcode)
+// Ejemplo de cómo agregar más módulos
+// app.use('/api/otro-modulo', otroModuloRouter);
+
 // ============================================
-// Manejo de errores 404
+// MANEJO DE ERRORES 404
 // ============================================
 app.use((req: Request, res: Response) => {
-  res.status(404).json({ 
+  res.status(404).json({
     success: false,
     message: 'Ruta no encontrada',
     path: req.path
   });
 });
 
-// Iniciar servidor
+// ============================================
+// INICIAR SERVIDOR
+// ============================================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`\n Servidor corriendo en puerto ${PORT}`);
-  console.log(` Modo: ${process.env.NODE_ENV}`);
-  console.log(` URL: http://localhost:${PORT}`);
-  console.log(`\n Módulos cargados:`);
-  console.log(`   - /api/nombre_grupo_ejemplo`);
-  console.log(`\n Listo para recibir peticiones!\n`
-
-  );
+  console.log(`\nServidor corriendo en puerto ${PORT}`);
+  console.log(`Modo: ${process.env.NODE_ENV}`);
+  console.log(`URL: http://localhost:${PORT}`);
+  console.log(`\nMódulos cargados:`);
+  console.log(`   - /api/devcode`);
+  console.log(`\nListo para recibir peticiones!\n`);
 });
