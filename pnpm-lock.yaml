@@ -26,9 +26,6 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
-      mogoose:
-        specifier: ^0.0.1-security
-        version: 0.0.1-security
       mongoose:
         specifier: ^8.19.0
         version: 8.19.1
@@ -562,9 +559,6 @@ packages:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
     engines: {node: '>=10'}
     hasBin: true
-
-  mogoose@0.0.1-security:
-    resolution: {integrity: sha512-TX97LVQnLr7jzee6nRZlKKS1XXC/Xp2M5OE2Vz7L/e3mkPMupVfuG4A5tIFFNeClFJ+LH/A0bsqekZolAPOIuA==}
 
   mongodb-connection-string-url@3.0.2:
     resolution: {integrity: sha512-rMO7CGo/9BFwyZABcKAWL8UJwH/Kc2x0g72uhDWzG48URRax5TCIcJ7Rc3RZqffZzO/Gwff/jyKwCU9TN8gehA==}
@@ -1443,8 +1437,6 @@ snapshots:
   minipass@7.1.2: {}
 
   mkdirp@1.0.4: {}
-
-  mogoose@0.0.1-security: {}
 
   mongodb-connection-string-url@3.0.2:
     dependencies:
