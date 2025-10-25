@@ -1,11 +1,11 @@
 
-import { Router } from "express";
-import availabilityRoutes from "./routes/availability.routes";
-import providersRoutes from "./routes/providers.routes";
+// import { Router } from "express";
+// import availabilityRoutes from "./routes/availability.routes";
+// import providersRoutes from "./routes/providers.routes";
 
-const router = Router();
+// const router = Router();
 
-router.use("/availability", availabilityRoutes);
-router.use("/providers", providersRoutes)
+// router.use("/availability", availabilityRoutes);
+// router.use("/providers", providersRoutes)
 
-export default router;
+// export default router;

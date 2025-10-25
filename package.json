@@ -1,8 +1,8 @@
 {
-  "name": "alquiler_back",
+  "name": "servineo_back",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
     "build": "tsc",
@@ -12,15 +12,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/robertgt0/alquiler_back.git"
+    "url": "git+https://github.com/Johan-py/servineo_back"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/robertgt0/alquiler_back/issues"
+    "url": "https://github.com/Johan-py/servineo_backissues"
   },
-  "homepage": "https://github.com/robertgt0/alquiler_back#readme",
+  "homepage": "https://github.com/Johan-py/servineo_back#readme",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",

@@ -1,4 +1,4 @@
-import { Cliente } from "@models/cliente.model";
+import { Cliente } from '../../../models/cliente.model'; // 👈 importa el modelo si lo creaste
 
 export class ClienteService {
   // Crear cliente
