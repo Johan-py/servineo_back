@@ -1,9 +1,9 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 // Dev y Prod funcionan
-import connectDB from './config/database.js';
-import routesDevcode from './modules/DevCode/routes/index.js';
+import connectDB from "./config/database";
+import routesDevcode from './modules/DevCode/routes';
 
 
 // Cargar variables de entorno

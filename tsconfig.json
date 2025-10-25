@@ -9,8 +9,8 @@
 
     /* === Módulos y compatibilidad === */
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "lib": ["ES2022", "DOM"],
 
     /* === Comportamiento del compilador === */
@@ -31,11 +31,13 @@
       "@/*": ["*"],
       "@config/*": ["config/*"],
       "@modules/*": ["modules/*"],
-      "@controllers/*": ["modules/*/controllers"],
-      "@services/*": ["modules/*/services"],
-      "@models/*": ["modules/*/models"],
+      "@controllers/*": ["modules/DevCode/controllers/*"],
+      "@services/*": ["modules/DevCode/services/*"],
+      "@models/*": ["modules/DevCode/models/*"],
       "@utils/*": ["utils/*"]
     },
+
+
 
     /* === Nueva opción para desarrolladores === */
     "allowImportingTsExtensions": false,
