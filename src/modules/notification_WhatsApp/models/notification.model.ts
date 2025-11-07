@@ -25,9 +25,9 @@ export interface NotificationData {
 // 🧩 INPUT TIPO (para validaciones y creación)
 // =============================================
 export interface CreateNotificationInput {
+  subject?: string; // ✅ añade esta línea
   message: string;
   destinations: IDestination[];
-  subject?: string;
   fromName?: string; // ✅ Añadido
   channel?: string; // ✅ Añadido
   isRegistration?: boolean; // ✅ Añadido

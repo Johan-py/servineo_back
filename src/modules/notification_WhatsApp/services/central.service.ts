@@ -13,7 +13,11 @@ interface Destination {
 }
 
 interface CreateNotificationInput {
+  subject?: string; // ✅ añade esta línea
   message: string;
+  fromName?: string; // ✅ agrega esto
+  channel?: string;
+
   destinations: Destination[];
 }
 
