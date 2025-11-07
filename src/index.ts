@@ -1,79 +1,122 @@
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import * as dotenv from 'dotenv';
-// Dev y Prod funcionan
-import connectDB from "./config/database";
-import routesDevcode from './modules/DevCode/routes';
+// ============================================
+// IMPORTS BASE
+// ============================================
+import express, { Request, Response } from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import helmet from "helmet";
+import path from "path";
+
+// 🔹 Cargar variables de entorno antes de cualquier import dinámico
 
 
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+import routesDevcode from "./modules/DevCode/routes"
 // Cargar variables de entorno
-dotenv.config();
 
-// Crear aplicación Express
+// ============================================
+// BASE DE DATOS (solo si se usa Gmail o registro de notificaciones)
+// ============================================
+import connectDB from "./modules/notification_Gmail/config/database";
+
+connectDB().catch((err) => {
+  console.error("❌ Error al conectar con la base de datos:", err.message);
+});
+
+// ============================================
+// MIDDLEWARES GLOBALES
+// ============================================
+import { requestLogger } from "./modules/notification_Gmail/middlewares/request.middleware";
+import { notFoundHandler } from "./modules/notification_Gmail/middlewares/notFound.middleware";
+import { globalErrorHandler } from "./modules/notification_Gmail/middlewares/error.middleware";
+
+// ============================================
+// IMPORT UTILIDADES INTERNAS (LOCAL LOGGER)
+// ============================================
+import { logSystem } from "./modules/notification_Gmail/utils/loggerExtended";
+import { generateCode } from "./modules/notification_Gmail/utils/helpers";
+
+// ============================================
+// RUTAS: GMAIL MODULE
+// ============================================
+import gmailRoutes from "./modules/notification_Gmail/routes/notification.routes";
+import gmailCentralRouter from "./modules/notification_Gmail/routes/central.router";
+
+// ============================================
+// RUTAS: WHATSAPP MODULE
+// ============================================
+import whatsappRoutes from "./modules/notification_WhatsApp/routes/notification.routes";
+import whatsappCentralRouter from "./modules/notification_WhatsApp/routes/central.router";
+
+// ============================================
+// INICIALIZACIÓN DE APP
+// ============================================
 const app = express();
 
-// Conectar a MongoDB
-connectDB();
-
-// Middlewares globales
+// --- Middlewares base ---
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(helmet());
+app.use(requestLogger);
 
-// ============================================
-// RUTA RAÍZ
-// ============================================
+
+
+// Ruta raíz
 app.get('/', (req: Request, res: Response) => {
   res.json({
-    message: 'API Backend',
-    status: 'OK',
-    version: '1.0.0',
+    message: "API Backend de Notificaciones",
+    status: "OK",
+    version: "1.0.0",
     timestamp: new Date().toISOString(),
-    modules: []
+    modules: {
+      gmail: ["/api/gmail-notifications", "/gmail-notifications"],
+      whatsapp: ["/api/whatsapp-notifications", "/whatsapp-notifications"],
+    },
   });
 });
 
-// ============================================
-// HEALTH CHECK
-// ============================================
-app.get('/api/health', (req: Request, res: Response) => {
+// Health check
+app.get("/api/health", (req: Request, res: Response) => {
   res.json({
-    status: 'healthy',
-    database: 'connected',
-    uptime: process.uptime()
+    status: "healthy",
+    database: "connected",
+    uptime: process.uptime(),
   });
 });
 
 // ============================================
-// MONTAR MÓDULOS
+// MÓDULOS ACTIVOS
 // ============================================
 
-// Rutas DevCode
-app.use('/api/devcode', routesDevcode);
+// --- Gmail Notifications ---
+app.use("/gmail-notifications", gmailRoutes);
+app.use("/api/gmail-notifications", gmailCentralRouter);
 
-// Ejemplo de cómo agregar más módulos
-// app.use('/api/otro-modulo', otroModuloRouter);
+// --- WhatsApp Notifications ---
+app.use("/whatsapp-notifications", whatsappRoutes);
+app.use("/api/whatsapp-notifications", whatsappCentralRouter);
+
+
+// app.use('/api/nombre_grupo_ejemplo', nombreGrupoEjemploRouter);
+
+// ROUTES DEVCODE
+app.use('/api/devcode', routesDevcode)
+// ============================================
+// MANEJO DE ERRORES
+// ============================================
+app.use(notFoundHandler);
+app.use(globalErrorHandler);
 
 // ============================================
-// MANEJO DE ERRORES 404
-// ============================================
-app.use((req: Request, res: Response) => {
-  res.status(404).json({
-    success: false,
-    message: 'Ruta no encontrada',
-    path: req.path
-  });
-});
-
-// ============================================
-// INICIAR SERVIDOR
+// INICIO DEL SERVIDOR
 // ============================================
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
-  console.log(`\nServidor corriendo en puerto ${PORT}`);
-  console.log(`Modo: ${process.env.NODE_ENV}`);
-  console.log(`URL: http://localhost:${PORT}`);
-  console.log(`\nMódulos cargados:`);
-  console.log(`   - /api/devcode`);
-  console.log(`\nListo para recibir peticiones!\n`);
+  logSystem("INFO", `🚀 Servidor corriendo en puerto ${PORT}`);
+  logSystem("INFO", `🔧 Modo: ${process.env.NODE_ENV}`);
+  logSystem("INFO", `🌐 URL: http://localhost:${PORT}`);
+  logSystem("INFO", `📦 Módulos activos: \n/gmail-notifications, \n/api/gmail-notifications, \n/whatsapp-notifications, \n/api/whatsapp-notifications`);
+  logSystem("INFO", "✅ Listo para recibir peticiones!");
 });
