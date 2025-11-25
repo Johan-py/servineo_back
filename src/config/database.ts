@@ -13,7 +13,7 @@ const connectDB = async (): Promise<void> => {
 
   try {
     await mongoose.connect(MONGO_URI, {
-       dbName: 'bitCrew' // <--- ¡AGREGA ESTA LÍNEA!
+       dbName: 'ServineoDB' // <--- ¡AGREGA ESTA LÍNEA!
     });
     console.log('✅ MongoDB conectado exitosamente a bitCrew'); // Puedes ajustar el log
   } catch (error) {
