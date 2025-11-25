@@ -1,16 +1,14 @@
-import FixerModel from "../models/Fixer"; 
-import { IFixer } from '../types/index'; 
+import { Fixer, IFixer } from "../../../models/fixer.model";
 
 /**
- * Obtiene todos los fixers de la base de datos.
+ * Obtiene todos los fixers.
  */
 export const getAllFixers = async (): Promise<IFixer[]> => {
   try {
-    const todosLosFixers = await FixerModel.find();
-    return todosLosFixers;
-  } catch (error) {
-    console.error('Error en servicio - getAllFixers:', error);
-    throw new Error('Error al obtener fixers');
+    return await Fixer.find();
+  } catch (error: any) {
+    console.error("Error en servicio - getAllFixers:", error);
+    throw new Error("Error al obtener fixers");
   }
 };
 
@@ -19,10 +17,9 @@ export const getAllFixers = async (): Promise<IFixer[]> => {
  */
 export const getFixerByUsuario = async (usuario: string): Promise<IFixer | null> => {
   try {
-    const fixer = await FixerModel.findOne({ usuario });
-    return fixer;
-  } catch (error) {
-    console.error('Error en servicio - getFixerByUsuario:', error);
-    throw new Error('Error al buscar fixer por usuario');
+    return await Fixer.findOne({ usuario });
+  } catch (error: any) {
+    console.error("Error en servicio - getFixerByUsuario:", error);
+    throw new Error("Error al buscar fixer por usuario");
   }
 };
