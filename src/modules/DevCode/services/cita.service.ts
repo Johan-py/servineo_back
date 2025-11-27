@@ -1,6 +1,6 @@
-import { Cita, ICita } from '../../../models/cita.model';
-import { Proveedor } from '../../../models/proveedor.model';
-import { Cliente } from '../../../models/cliente.model';
+import { Cita, ICita } from '../models/cita.model';
+import { Proveedor } from "../models/proveedor.model"
+import { Cliente } from '../models/cliente.model';
 import { Types } from 'mongoose';
 
 export class CitaService {
