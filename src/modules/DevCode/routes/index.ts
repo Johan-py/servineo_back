@@ -1,15 +1,27 @@
-import { Router } from "express";
-
-import billeteraRoutes from './wallet.routes';
-import fixerRoutes from './fixer.routes';
-import trabajoRoutes from './trabajo.routes';
-import transaccionRoutes from '../../bitCrew/routes/transaccion.routes';
+import { Router } from 'express';
+import proveedorRoutes from './proveedor.routes';
+import citaRoutes from './cita.routes';
+import servicioRoutes from './servicio.routes';
+import clienteRoutes from './cliente.routes';
 
 const router = Router();
 
-router.use('/billetera', billeteraRoutes);
-router.use('/fixers', fixerRoutes);
-router.use('/trabajos', trabajoRoutes);
-router.use('/historial', transaccionRoutes);
+// Monta las rutas específicas del módulo
+router.use('/proveedores', proveedorRoutes);
+router.use('/citas', citaRoutes);
+router.use('/servicios', servicioRoutes);
+router.use('/clientes', clienteRoutes);
+
+// Ruta base de prueba del módulo
+router.get('/', (req, res) => {
+  res.json({
+    message: 'Módulo DevCode funcionando correctamente 🚀',
+    endpoints: [
+      '/api/devcode/proveedores',
+      '/api/devcode/citas',
+      '/api/devcode/servicios'
+    ]
+  });
+});
 
 export default router;
