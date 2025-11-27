@@ -23,7 +23,7 @@ const servicioSchema = new Schema<IServicio>(
     precio: { type: Number },
     precio_base: { type: Number },
     rating: { type: Number, min: 0, max: 5 },
-    proveedorId: { type: Schema.Types.ObjectId, ref: "Fixer" },
+    proveedorId: { type: Schema.Types.ObjectId, ref: "Proveedor" },
     fecha_creacion: { type: Date, default: Date.now },
   },
   { timestamps: true }

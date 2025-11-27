@@ -15,7 +15,7 @@ const connectDB = async (): Promise<void> => {
     await mongoose.connect(MONGO_URI, {
        dbName: 'ServineoDB' // <--- ¡AGREGA ESTA LÍNEA!
     });
-    console.log('✅ MongoDB conectado exitosamente a bitCrew'); // Puedes ajustar el log
+    console.log('✅ MongoDB conectado exitosamente a la DB'); // Puedes ajustar el log
   } catch (error) {
     console.error("❌ Error al conectar MongoDB:", error);
     process.exit(1);

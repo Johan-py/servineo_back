@@ -66,6 +66,7 @@ import userRoutes from "./routes/user.routes";
 import userAuthRoutes from "./routes/userAuth.routes";
 import walletRoutes from "./routes/wallet.routes";*/
 import routeswallet from "./modules/bitCrew/routes";
+import routesDevcode from "./modules/DevCode/routes"
 
 
 // ============================================
@@ -117,6 +118,7 @@ app.use("/api/gmail-notifications", gmailCentralRouter);
 app.use("/whatsapp-notifications", whatsappRoutes);
 app.use("/api/whatsapp-notifications", whatsappCentralRouter);*/
 app.use('/api/bitCrew', routeswallet);
+app.use('/api/devcode', routesDevcode);
 /*
 // --- Rutas Generales del Proyecto ---
 app.use("/api/cita", citaRoutes);
