@@ -2,20 +2,18 @@ import { Request, Response } from 'express';
 import { CitaService } from '../services/cita.service';
 import { GoogleCalendarService } from '../services/googleCalendar.service';
 import { Cita } from '../models/cita.model';
+import { RequestWithGoogleAuth } from '../middlewares/googleAuth.middleware';
 
 export class CitaController {
-  static async crear(req: Request, res: Response) {
+  static async crear(req: RequestWithGoogleAuth, res: Response) {
     try {
       const nueva = await CitaService.crearCita(req.body);
 
       // 🗓️ Sincronizar con Google Calendar de forma ASINCRÓNICA
       // No bloqueamos la respuesta si falla Google Calendar
-      const googleAccessToken = req.headers.authorization?.replace('Bearer ', '') || 
-                                req.body.googleAccessToken;
-
-      if (googleAccessToken) {
+      if (req.googleAccessToken) {
         // Ejecutar en background, sin esperar
-        GoogleCalendarService.createEvent(googleAccessToken, nueva)
+        GoogleCalendarService.createEvent(req.googleAccessToken, nueva)
           .then((result: any) => {
             if (result.success) {
               // Actualizar cita con googleEventId
@@ -59,7 +57,7 @@ export class CitaController {
     }
   }
 
-  static async actualizar(req: Request, res: Response) {
+  static async actualizar(req: RequestWithGoogleAuth, res: Response) {
     try {
       const { id } = req.params;
       const data = req.body;
@@ -70,13 +68,10 @@ export class CitaController {
       }
 
       // 🗓️ Sincronizar cambios con Google Calendar
-      const googleAccessToken = req.headers.authorization?.replace('Bearer ', '') || 
-                                req.body.googleAccessToken;
-
       const citaData = citaActualizada.toObject() as any;
-      if (googleAccessToken && citaData.googleEventId) {
+      if (req.googleAccessToken && citaData.googleEventId) {
         GoogleCalendarService.updateEvent(
-          googleAccessToken,
+          req.googleAccessToken,
           citaData.googleEventId,
           citaActualizada
         )
@@ -100,7 +95,7 @@ export class CitaController {
   }
 
   // ✅ Eliminar cita como proveedor
-  static async eliminarPorProveedor(req: Request, res: Response) {
+  static async eliminarPorProveedor(req: RequestWithGoogleAuth, res: Response) {
     try {
       const { id } = req.params; // id de la cita
       const { proveedorId } = req.body; // proveedor que hace la petición
@@ -111,12 +106,9 @@ export class CitaController {
       await CitaService.eliminarCitaPorProveedor(id, proveedorId);
 
       // 🗓️ Eliminar evento de Google Calendar
-      const googleAccessToken = req.headers.authorization?.replace('Bearer ', '') || 
-                                req.body.googleAccessToken;
-
       const citaData = cita?.toObject() as any;
-      if (googleAccessToken && citaData?.googleEventId) {
-        GoogleCalendarService.deleteEvent(googleAccessToken, citaData.googleEventId)
+      if (req.googleAccessToken && citaData?.googleEventId) {
+        GoogleCalendarService.deleteEvent(req.googleAccessToken, citaData.googleEventId)
           .catch((err) => console.error('Error eliminando evento de Google Calendar:', err));
       }
 
