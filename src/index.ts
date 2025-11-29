@@ -6,6 +6,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import path from "path";
+import cookieParser from "cookie-parser";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
@@ -30,9 +31,15 @@ import routesDevcode from "./modules/DevCode/routes";
 const app = express();
 
 // --- Middlewares base ---
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(helmet());
 
 // Ruta raíz
