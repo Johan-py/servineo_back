@@ -9,29 +9,34 @@ export class CitaController {
     try {
       const nueva = await CitaService.crearCita(req.body);
 
-      // 🗓️ Sincronizar con Google Calendar de forma ASINCRÓNICA
-      // No bloqueamos la respuesta si falla Google Calendar
+      // 🗓️ Intentar sincronizar con Google Calendar y devolver el resultado al frontend
+      let googleSync: any = { attempted: false };
       if (req.googleAccessToken) {
-        // Ejecutar en background, sin esperar
-        GoogleCalendarService.createEvent(req.googleAccessToken, nueva)
-          .then((result: any) => {
-            if (result.success) {
-              // Actualizar cita con googleEventId
-              Cita.findByIdAndUpdate(
-                nueva._id,
-                {
-                  googleEventId: result.googleEventId,
-                  googleCalendarSynced: true,
-                  lastSyncedAt: new Date(),
-                },
-                { new: true }
-              ).catch((err) => console.error('Error actualizando googleEventId:', err));
-            }
-          })
-          .catch((err) => console.error('Error sincronizando con Google Calendar:', err));
+        googleSync.attempted = true;
+        try {
+          const result: any = await GoogleCalendarService.createEvent(req.googleAccessToken, nueva);
+          if (result.success) {
+            // Actualizar cita con googleEventId
+            await Cita.findByIdAndUpdate(
+              nueva._id,
+              {
+                googleEventId: result.googleEventId,
+                googleCalendarSynced: true,
+                lastSyncedAt: new Date(),
+              },
+              { new: true }
+            );
+            googleSync = { success: true, googleEventId: result.googleEventId, message: result.message };
+          } else {
+            googleSync = { success: false, error: result.error || 'Unknown error', details: result.details || null };
+          }
+        } catch (err: any) {
+          console.error('Error sincronizando con Google Calendar:', err);
+          googleSync = { success: false, error: err.message || String(err) };
+        }
       }
 
-      res.status(201).json({ success: true, data: nueva });
+      res.status(201).json({ success: true, data: nueva, googleSync });
     } catch (err: any) {
       res.status(400).json({ success: false, error: err.message });
     }
@@ -67,28 +72,31 @@ export class CitaController {
         return res.status(404).json({ success: false, error: 'Cita no encontrada' });
       }
 
-      // 🗓️ Sincronizar cambios con Google Calendar
+      // 🗓️ Intentar sincronizar cambios con Google Calendar y devolver resultado
       const citaData = citaActualizada.toObject() as any;
+      let googleSync: any = { attempted: false };
       if (req.googleAccessToken && citaData.googleEventId) {
-        GoogleCalendarService.updateEvent(
-          req.googleAccessToken,
-          citaData.googleEventId,
-          citaActualizada
-        )
-          .then((result: any) => {
-            if (result.success) {
-              // Actualizar timestamp de última sincronización
-              Cita.findByIdAndUpdate(
-                id,
-                { lastSyncedAt: new Date() },
-                { new: true }
-              ).catch((err) => console.error('Error actualizando lastSyncedAt:', err));
-            }
-          })
-          .catch((err) => console.error('Error sincronizando actualización:', err));
+        googleSync.attempted = true;
+        try {
+          const result: any = await GoogleCalendarService.updateEvent(
+            req.googleAccessToken,
+            citaData.googleEventId,
+            citaActualizada
+          );
+
+          if (result.success) {
+            await Cita.findByIdAndUpdate(id, { lastSyncedAt: new Date() });
+            googleSync = { success: true, message: result.message };
+          } else {
+            googleSync = { success: false, error: result.error || 'Unknown error' };
+          }
+        } catch (err: any) {
+          console.error('Error sincronizando actualización:', err);
+          googleSync = { success: false, error: err.message || String(err) };
+        }
       }
 
-      res.json({ success: true, data: citaActualizada });
+      res.json({ success: true, data: citaActualizada, googleSync });
     } catch (err: any) {
       res.status(400).json({ success: false, error: err.message });
     }

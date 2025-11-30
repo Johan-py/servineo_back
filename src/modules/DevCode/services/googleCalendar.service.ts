@@ -48,14 +48,42 @@ export class GoogleCalendarService {
         parseInt(minFin) || 0
       );
 
-      // Construir descripción del evento
-      const proveedorNombre = cita.proveedorId?.nombre || 'Proveedor';
+      // Construir título y descripción del evento en el formato solicitado
+      const proveedor = cita.proveedorId || {};
+      const proveedorNombre = proveedor.nombre || 'Proveedor';
+      const proveedorApellido = proveedor.apellido || '';
+      const proveedorFullName = `${proveedorNombre}${proveedorApellido ? ' ' + proveedorApellido : ''}`.trim();
+      const proveedorEmail = proveedor.email || 'No disponible';
+      const proveedorTelefono = proveedor.telefono || 'No disponible';
+
       const servicioNombre = cita.servicioId?.nombre || 'Servicio';
       const direccion = cita.ubicacion?.direccion || 'Por confirmar';
+      const detalleAdicional = cita.ubicacion?.notas || cita.detalle || 'No se añadió detalle adicional.';
+
+      // Formato de fecha dd/mm/yyyy
+      const pad = (n: number) => (n < 10 ? '0' + n : String(n));
+      const fechaStr = `${pad(startTime.getDate())}/${pad(startTime.getMonth() + 1)}/${startTime.getFullYear()}`;
+
+      // Hora en formato hh:mm
+      const horaInicioStr = `${pad(startTime.getHours())}:${pad(startTime.getMinutes())}`;
+      const horaFinStr = `${pad(endTime.getHours())}:${pad(endTime.getMinutes())}`;
+
+      const title = `${servicioNombre} – Con ${proveedorFullName}`;
+
+      const descriptionLines = [
+        `Servicio: ${servicioNombre}`,
+        `Proveedor: ${proveedorFullName}`,
+        `Email: ${proveedorEmail}`,
+        `Teléfono: ${proveedorTelefono}`,
+        `Fecha: ${fechaStr}`,
+        `Hora: ${horaInicioStr} - ${horaFinStr}`,
+        `Ubicación: ${direccion}`,
+        `Detalle adicional: ${detalleAdicional}`,
+      ];
 
       const event = {
-        summary: `${servicioNombre} - ${proveedorNombre}`,
-        description: `Cita agendada en Servineo\nUbicación: ${direccion}\nEstado: ${cita.estado}`,
+        summary: title,
+        description: descriptionLines.join('\n'),
         start: { dateTime: startTime.toISOString(), timeZone: 'America/Bogota' },
         end: { dateTime: endTime.toISOString(), timeZone: 'America/Bogota' },
         location: direccion,
