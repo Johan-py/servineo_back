@@ -5,6 +5,7 @@ const clienteSchema = new mongoose.Schema({
   correo: String,
   telefono: String,
   contraseña: String,
+  googleAccessToken?: string;
   createdAt: {
     type: Date,
     default: Date.now,

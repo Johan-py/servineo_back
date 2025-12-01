@@ -3,6 +3,7 @@ import { CitaService } from '../services/cita.service';
 import { GoogleCalendarService } from '../services/googleCalendar.service';
 import { Cita } from '../models/cita.model';
 import { RequestWithGoogleAuth } from '../middlewares/googleAuth.middleware';
+import { IRequestWithUser } from '../types';
 
 export class CitaController {
   static async crear(req: RequestWithGoogleAuth, res: Response) {
@@ -99,6 +100,39 @@ export class CitaController {
       res.json({ success: true, data: citaActualizada, googleSync });
     } catch (err: any) {
       res.status(400).json({ success: false, error: err.message });
+    }
+  }
+
+// HU03: Cancela una cita desde el lado del cliente.
+
+  public static async cancelarCita(req: IRequestWithUser, res: Response) {
+    try {
+      const { citaId } = req.params;
+      // El ID del cliente se obtiene de la sesión/token, no del body
+      const clienteId = req.user._id || req.user.id; 
+
+      if (!citaId) {
+        return res.status(400).json({ success: false, message: 'El ID de la cita es requerido.' });
+      }
+      // Validar que clienteId exista
+      if (!clienteId) {
+        return res.status(401).json({ success: false, message: 'ID de usuario no encontrado en la sesión. Reintente el login.' });
+      }
+
+      const result = await CitaService.cancelarCita(citaId, clienteId as string);
+
+      // Criterio: Mensaje de confirmación y Notificación visual
+      return res.status(200).json({
+        success: true,
+        message: 'Cita cancelada exitosamente.',
+        cita: result.cita,
+        googleSyncSuccess: result.googleSyncSuccess, // Devuelve el flag para el front
+      });
+
+    } catch (error: any) {
+      console.error('Error al cancelar cita:', error.message);
+      // Devolvemos 400 para errores de negocio (no encontrada, ya cancelada)
+      return res.status(400).json({ success: false, message: error.message });
     }
   }
 
