@@ -60,7 +60,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Iniciar login con Google
-app.get('/api/devcode/auth/google-login', async (req: Request, res: Response) => {
+app.get('/auth/google-login', async (req: Request, res: Response) => {
   try {
     const state = crypto.randomBytes(32).toString("hex");
 
