@@ -1,6 +1,7 @@
 // src/modules/notification_Gmail/services/central.service.ts
 import { v4 as uuidv4 } from "uuid";
-import { saveNotification } from "../models/notification.model";
+import { notificacionGmailController } from "../../../controllers/notificacionGmail.controller";
+import connectDB from "../../../config/database";
 import {
   InvalidNotificationDataError,
   NotificationCreationError,
@@ -36,6 +37,9 @@ interface GmailSendResponse {
 
 export class CentralNotificationService {
   async receiveAndSend(data: CreateNotificationInput) {
+     // 🔹 0️⃣ Asegurar conexión antes de cualquier operación con MongoD
+    await connectDB();
+
     // --- 1️⃣ Validar estructura del payload
     this.validatePayload(data);
 
@@ -63,10 +67,12 @@ export class CentralNotificationService {
       });
 
       // --- 4️⃣ Registrar en la base de datos ---
-      notification = await saveNotification({
+      const notificationData = {
         transactionId,
-        subject: data.subject,
-        message: data.message,
+        message: {
+          subject: data.subject,
+          content: data.message,
+        },
         destinations: data.destinations,
         channel: "gmail-api",
         status: gmailResult.success ? "sent" : "failed",
@@ -74,7 +80,28 @@ export class CentralNotificationService {
         attempts: 1,
         providerResponse: gmailResult,
         sentAt: new Date(),
-      });
+      };
+
+      // Creamos mocks de req y res para invocar al controlador interno
+      const mockReq: any = { body: notificationData };
+      const mockRes: any = {
+        statusCode: 200,
+        jsonData: null,
+        status(code: number) {
+          this.statusCode = code;
+          return this;
+        },
+        json(data: any) {
+          this.jsonData = data;
+          return this;
+        },
+      };
+
+      // Llamar directamente al método create del controlador base
+      await notificacionGmailController.create(mockReq, mockRes);
+
+      // Recuperamos la notificación creada (respuesta del controlador)
+      notification = mockRes.jsonData;
 
       // --- 5️⃣ Retornar resumen de la operación ---
       return {

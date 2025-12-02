@@ -1,11 +1,43 @@
 import { Request, Response } from 'express';
 import { CitaService } from '../services/cita.service';
+import { GoogleCalendarService } from '../services/googleCalendar.service';
+import { Cita } from '../models/cita.model';
+import { RequestWithGoogleAuth } from '../middlewares/googleAuth.middleware';
+import { IRequestWithUser } from '../types';
 
 export class CitaController {
-  static async crear(req: Request, res: Response) {
+  static async crear(req: RequestWithGoogleAuth, res: Response) {
     try {
       const nueva = await CitaService.crearCita(req.body);
-      res.status(201).json({ success: true, data: nueva });
+
+      // 🗓️ Intentar sincronizar con Google Calendar y devolver el resultado al frontend
+      let googleSync: any = { attempted: false };
+      if (req.googleAccessToken) {
+        googleSync.attempted = true;
+        try {
+          const result: any = await GoogleCalendarService.createEvent(req.googleAccessToken, nueva);
+          if (result.success) {
+            // Actualizar cita con googleEventId
+            await Cita.findByIdAndUpdate(
+              nueva._id,
+              {
+                googleEventId: result.googleEventId,
+                googleCalendarSynced: true,
+                lastSyncedAt: new Date(),
+              },
+              { new: true }
+            );
+            googleSync = { success: true, googleEventId: result.googleEventId, message: result.message };
+          } else {
+            googleSync = { success: false, error: result.error || 'Unknown error', details: result.details || null };
+          }
+        } catch (err: any) {
+          console.error('Error sincronizando con Google Calendar:', err);
+          googleSync = { success: false, error: err.message || String(err) };
+        }
+      }
+
+      res.status(201).json({ success: true, data: nueva, googleSync });
     } catch (err: any) {
       res.status(400).json({ success: false, error: err.message });
     }
@@ -31,7 +63,7 @@ export class CitaController {
     }
   }
 
-  static async actualizar(req: Request, res: Response) {
+  static async actualizar(req: RequestWithGoogleAuth, res: Response) {
     try {
       const { id } = req.params;
       const data = req.body;
@@ -41,19 +73,86 @@ export class CitaController {
         return res.status(404).json({ success: false, error: 'Cita no encontrada' });
       }
 
-      res.json({ success: true, data: citaActualizada });
+      // 🗓️ Intentar sincronizar cambios con Google Calendar y devolver resultado
+      const citaData = citaActualizada.toObject() as any;
+      let googleSync: any = { attempted: false };
+      if (req.googleAccessToken && citaData.googleEventId) {
+        googleSync.attempted = true;
+        try {
+          const result: any = await GoogleCalendarService.updateEvent(
+            req.googleAccessToken,
+            citaData.googleEventId,
+            citaActualizada
+          );
+
+          if (result.success) {
+            await Cita.findByIdAndUpdate(id, { lastSyncedAt: new Date() });
+            googleSync = { success: true, message: result.message };
+          } else {
+            googleSync = { success: false, error: result.error || 'Unknown error' };
+          }
+        } catch (err: any) {
+          console.error('Error sincronizando actualización:', err);
+          googleSync = { success: false, error: err.message || String(err) };
+        }
+      }
+
+      res.json({ success: true, data: citaActualizada, googleSync });
     } catch (err: any) {
       res.status(400).json({ success: false, error: err.message });
     }
   }
 
+// HU03: Cancela una cita desde el lado del cliente.
+
+  public static async cancelarCita(req: IRequestWithUser, res: Response) {
+    try {
+      const { citaId } = req.params;
+      // El ID del cliente se obtiene de la sesión/token, no del body
+      const clienteId = req.user._id || req.user.id; 
+
+      if (!citaId) {
+        return res.status(400).json({ success: false, message: 'El ID de la cita es requerido.' });
+      }
+      // Validar que clienteId exista
+      if (!clienteId) {
+        return res.status(401).json({ success: false, message: 'ID de usuario no encontrado en la sesión. Reintente el login.' });
+      }
+
+      const result = await CitaService.cancelarCita(citaId, clienteId as string);
+
+      // Criterio: Mensaje de confirmación y Notificación visual
+      return res.status(200).json({
+        success: true,
+        message: 'Cita cancelada exitosamente.',
+        cita: result.cita,
+        googleSyncSuccess: result.googleSyncSuccess, // Devuelve el flag para el front
+      });
+
+    } catch (error: any) {
+      console.error('Error al cancelar cita:', error.message);
+      // Devolvemos 400 para errores de negocio (no encontrada, ya cancelada)
+      return res.status(400).json({ success: false, message: error.message });
+    }
+  }
+
   // ✅ Eliminar cita como proveedor
-  static async eliminarPorProveedor(req: Request, res: Response) {
+  static async eliminarPorProveedor(req: RequestWithGoogleAuth, res: Response) {
     try {
       const { id } = req.params; // id de la cita
       const { proveedorId } = req.body; // proveedor que hace la petición
 
+      // Obtener cita antes de eliminar (para saber googleEventId)
+      const cita = await Cita.findById(id);
+      
       await CitaService.eliminarCitaPorProveedor(id, proveedorId);
+
+      // 🗓️ Eliminar evento de Google Calendar
+      const citaData = cita?.toObject() as any;
+      if (req.googleAccessToken && citaData?.googleEventId) {
+        GoogleCalendarService.deleteEvent(req.googleAccessToken, citaData.googleEventId)
+          .catch((err) => console.error('Error eliminando evento de Google Calendar:', err));
+      }
 
       res.json({ success: true, message: 'Cita eliminada correctamente' });
     } catch (err: any) {

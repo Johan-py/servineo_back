@@ -539,8 +539,3 @@
 {"ts":"2025-11-06T06:23:40.239Z","level":"INFO","message":"request:finish","id":"59aa7ae8-b140-49a1-a2b3-25e2f7dc9e67","status":304,"method":"GET","url":"/api/devcode/servicios","duration":336}
 {"ts":"2025-11-06T06:23:40.243Z","level":"INFO","message":"request:start","id":"12de03e2-344c-44ce-b22e-ceed148dc2a4","method":"GET","url":"/api/devcode/servicios","ip":"::1"}
 {"ts":"2025-11-06T06:23:40.587Z","level":"INFO","message":"request:finish","id":"12de03e2-344c-44ce-b22e-ceed148dc2a4","status":304,"method":"GET","url":"/api/devcode/servicios","duration":344}
-{"ts":"2025-11-07T04:14:27.261Z","level":"INFO","message":"🚀 Servidor corriendo en puerto 5000"}
-{"ts":"2025-11-07T04:14:27.261Z","level":"INFO","message":"🔧 Modo: development"}
-{"ts":"2025-11-07T04:14:27.262Z","level":"INFO","message":"🌐 URL: http://localhost:5000"}
-{"ts":"2025-11-07T04:14:27.262Z","level":"INFO","message":"📦 Módulos activos: \n/gmail-notifications, \n/api/gmail-notifications, \n/whatsapp-notifications, \n/api/whatsapp-notifications"}
-{"ts":"2025-11-07T04:14:27.262Z","level":"INFO","message":"✅ Listo para recibir peticiones!"}

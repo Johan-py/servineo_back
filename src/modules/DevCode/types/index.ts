@@ -1,4 +1,12 @@
 // Define aquí los tipos/interfaces específicos de este módulo
+import { CustomRequest, IUser } from '../../../types/index';
+
+export interface IRequestWithUser extends CustomRequest {
+    user: IUser & { 
+    id?: string; 
+    role: 'cliente' | 'proveedor' | 'admin'; // Rol obligatorio
+  } 
+}
 
 export interface EjemploEntity {
   _id?: string;
