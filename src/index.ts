@@ -17,15 +17,15 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ============================================
-// CORS: PERMITIR TODOS LOS ORÍGENES
-// ============================================
+const FRONTEND_URL = process.env.FRONTEND_REDIRECT_URI || "https://servineo-front-liard.vercel.app";
+
 app.use(cors({
-  origin: '*',       // permite cualquier frontend
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true// cookies NO serán enviadas en este modo
+  origin: FRONTEND_URL,
+  credentials: true, // permite cookies
+  methods: ['GET','POST','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
 }));
+
 
 // ============================================
 // MIDDLEWARES
@@ -60,7 +60,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Iniciar login con Google
-app.get('/auth/google-login', async (req: Request, res: Response) => {
+app.get('/api/devcode/auth/google-login', async (req: Request, res: Response) => {
   try {
     const state = crypto.randomBytes(32).toString("hex");
 
