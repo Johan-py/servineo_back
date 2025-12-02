@@ -14,9 +14,15 @@ export const upsertGoogleCliente = async (req: Request, res: Response) => {
 
     const updated = await Cliente.findOneAndUpdate(
       { correo: email },
-      { nombre: name || email.split("@")[0], correo: email, telefono: "", contraseña: randomPass },
+      {
+        nombre: name || email.split("@")[0],
+        correo: email,
+        telefono: "",
+        contraseña: randomPass
+      },
       { upsert: true, new: true, setDefaultsOnInsert: true }
-    ).lean();
+    );
+
 
     return res.json({ clienteId: updated?._id });
   } catch (e: any) {
