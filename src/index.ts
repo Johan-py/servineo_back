@@ -29,7 +29,7 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: allowedOrigins,
-  credentials: true, // Necesario para cookies
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -58,24 +58,24 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 // ============================================
-// ROUTES
+// ROUTER /api/devcode
 // ============================================
+const devcodeRouter = express.Router();
 
-// Ruta raíz
-app.get('/', (req: Request, res: Response) => {
-  res.json({ message: "API Backend OK" });
+// Ruta raíz devcode
+devcodeRouter.get('/', (req: Request, res: Response) => {
+  res.json({ message: "DevCode API OK" });
 });
 
 // Iniciar login con Google
-app.get('/auth/google', async (req: Request, res: Response) => {
+devcodeRouter.get('/auth/google-login', async (req: Request, res: Response) => {
   try {
     const state = crypto.randomBytes(32).toString("hex");
 
-    // Guardar state en cookie cross-site
     res.cookie("oauth_state", state, {
       httpOnly: true,
-      maxAge: 10 * 60 * 1000, // 10 minutos
-      secure: process.env.NODE_ENV === "production", // HTTPS obligatorio en prod
+      maxAge: 10 * 60 * 1000, 
+      secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
     });
 
@@ -99,7 +99,7 @@ app.get('/auth/google', async (req: Request, res: Response) => {
 });
 
 // Callback de Google
-app.get('/auth/google/callback', async (req: Request, res: Response) => {
+devcodeRouter.get('/auth/google-callback', async (req: Request, res: Response) => {
   try {
     const { code, state } = req.query;
     const savedState = req.cookies?.oauth_state;
@@ -121,7 +121,6 @@ app.get('/auth/google/callback', async (req: Request, res: Response) => {
       user: userInfo.data
     };
 
-    // Redirigir al frontend con datos codificados
     const frontendCallbackUrl = `${FRONTEND_URL}/booking/auth-callback?data=${encodeURIComponent(JSON.stringify(callbackData))}`;
     return res.redirect(frontendCallbackUrl);
 
@@ -133,9 +132,15 @@ app.get('/auth/google/callback', async (req: Request, res: Response) => {
 });
 
 // ============================================
+// MOUNT ROUTER
+// ============================================
+app.use('/api/devcode', devcodeRouter);
+
+// ============================================
 // START SERVER
 // ============================================
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
   console.log(`🌐 Frontend permitido: ${allowedOrigins.join(", ")}`);
+  console.log(`🌐 Rutas: /api/devcode/auth/google-login , /api/devcode/auth/google-callback`);
 });
