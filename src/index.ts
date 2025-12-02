@@ -30,13 +30,27 @@ import routesDevcode from "./modules/DevCode/routes";
 // ============================================
 const app = express();
 
-// --- Middlewares base ---
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://servineo-front-liard.vercel.app'
+];
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: (origin, callback) => {
+    // Permitir requests sin origin (como Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS no permitido'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
