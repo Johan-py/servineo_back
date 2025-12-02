@@ -16,6 +16,7 @@ export interface ICita extends Document {
     notas?: string;
   };
   estado: 'pendiente' | 'confirmada' | 'cancelada';
+  googleEventId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,6 +42,7 @@ const CitaSchema = new Schema<ICita>(
       enum: ['pendiente', 'confirmada', 'cancelada'],
       default: 'pendiente',
     },
+    googleEventId: { type: String, required: false, index: true }, // Añadido el campo de ID de evento de Google
   },
   { timestamps: true }
 );

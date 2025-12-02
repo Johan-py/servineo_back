@@ -16,6 +16,10 @@ export interface ICita extends Document {
     notas?: string;
   };
   estado: 'pendiente' | 'confirmada' | 'cancelada';
+  // Google Calendar Sync
+  googleEventId?: string; // ID del evento en Google Calendar
+  googleCalendarSynced?: boolean; // ¿Sincronizado con Google Calendar?
+  lastSyncedAt?: Date; // Última sincronización exitosa
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,6 +45,10 @@ const citaSchema = new Schema<ICita>(
       enum: ["pendiente", "confirmada", "cancelada"],
       default: "pendiente",
     },
+    // Google Calendar Sync
+    googleEventId: { type: String, default: null },
+    googleCalendarSynced: { type: Boolean, default: false },
+    lastSyncedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

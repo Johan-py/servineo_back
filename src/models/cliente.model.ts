@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from "mongoose";
+import { Schema, model, Document, Types, connection } from "mongoose";
 
 export interface ICliente extends Document {
   _id: Types.ObjectId;
@@ -14,6 +14,10 @@ export interface ICliente extends Document {
     lng: number;
     direccion?: string;
   };
+  googleId?: string;
+  googleAccessToken?: string;
+  googleRefreshToken?: string;
+  googleTokenExpiresAt?: Date;
 }
 
 const clienteSchema = new Schema<ICliente>(
@@ -29,8 +33,13 @@ const clienteSchema = new Schema<ICliente>(
       lng: { type: Number },
       direccion: { type: String },
     },
+    googleId: { type: String },
+    googleAccessToken: { type: String },
+    googleRefreshToken: { type: String },
+    googleTokenExpiresAt: { type: Date },
   },
   { timestamps: { createdAt: true, updatedAt: false } } // solo createdAt
 );
 
-export const Cliente = model<ICliente>("Cliente", clienteSchema);
+// Evitar error de redefinición en desarrollo
+export const Cliente = connection.models.Cliente || model<ICliente>("Cliente", clienteSchema);
