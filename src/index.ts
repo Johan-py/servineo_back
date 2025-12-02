@@ -24,7 +24,7 @@ app.use(cors({
   origin: '*',       // permite cualquier frontend
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: false // cookies NO serán enviadas en este modo
+  credentials: true// cookies NO serán enviadas en este modo
 }));
 
 // ============================================
