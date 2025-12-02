@@ -5,11 +5,11 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
-    "build": "npm install --include=dev && tsc -p tsconfig.json",
+    "build": "tsc && tsc-alias",
     "start": "node dist/index.js",
-    "start:dev": "npm run build && npm start",
     "clean": "rimraf dist"
   },
+
   "repository": {
     "type": "git",
     "url": "https://github.com/robertgt0/alquiler_back.git"
@@ -52,6 +52,7 @@
     "nodemon": "^3.1.10",
     "rimraf": "^6.0.1",
     "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5"
   }
